@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Grade 6 - Computer Science Diagnostic Assessment</title>
+    <title>Grade 6 ICT Diagnostic Assessment</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -77,8 +77,13 @@
             transition: background-color 0.3s;
         }
 
-        button:hover {
+        button:hover:not(:disabled) {
             background-color: #004d4d;
+        }
+        
+        button:disabled {
+            background-color: #555;
+            cursor: not-allowed;
         }
 
         .question {
@@ -111,34 +116,78 @@
             text-align: left;
             margin-top: 20px;
         }
+
+        .report-section .feedback-section {
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+
+        .report-section .strength {
+            background-color: #006400; /* Darker green */
+        }
+        
+        .report-section .weakness {
+            background-color: #8B0000; /* Darker red */
+        }
+        
+        .report-section .feedback-box {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Modal styling */
+        .modal {
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background-color: #333;
+            padding: 20px;
+            border-radius: 10px;
+            width: 80%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .modal-content button {
+            margin-top: 15px;
+        }
     </style>
 </head>
 <body>
-
     <div class="container">
         <div class="title-page" id="title-page">
             <img src="https://storage.googleapis.com/yaschools/schools-logo/148544809806-19-2025-10-34-06.jpg" alt="School Logo" class="logo">
-            <h1>Grade 6 - Computer Science</h1><br><h2>Diagnostic Assessment</h2>
-            <p>Teacher: Mr. Usama Ibnzaid</p>
+            <h1>Grade 6 – ICT<br>Diagnostic Assessment</h1>
+            <p>Teacher Name: Mr. Usama Ibnzaid</p>
             <div class="input-group">
                 <label for="studentName">Student Full Name:</label>
                 <input type="text" id="studentName" required>
             </div>
-            <button onclick="startTest()">Start Test</button>
+            <button onclick="startAssessment()">Start Assessment</button>
         </div>
 
         <div class="quiz-page" id="quiz-page">
-            <h2 id="question-counter">Question 1 of 100</h2>
+            <h2 id="question-counter">Question 1 of 50</h2>
             <div id="question-container"></div>
             <button onclick="previousQuestion()" id="previous-button" style="display: none;">Previous</button>
             <button onclick="nextQuestion()" id="next-button">Next</button>
-            <button onclick="submitTest()" style="display: none;" id="submit-button">Submit Test</button>
+            <button onclick="submitAssessment()" style="display: none;" id="submit-button">Submit Assessment</button>
         </div>
 
         <div class="result-page" id="result-page">
             <h2>Assessment Report</h2>
             <p>Student: <span id="student-name-result"></span></p>
-            <p>Your Score: <span id="score"></span> / 100</p>
+            <p>Your Score: <span id="score"></span> / 50</p>
             <div class="report-section">
                 <h3>Strengths & Weaknesses</h3>
                 <div id="strengths-weaknesses"></div>
@@ -152,114 +201,67 @@
     </div>
 
     <script>
+        // Data for the 50-question quiz.
         const quizData = [
-            { type: "multiple-choice", question: "1. What is the 'brain' of the computer that does all the thinking and calculations?", options: ["Monitor", "Mouse", "CPU", "Keyboard"], answer: "CPU", topic: "Hardware" },
-            { type: "true-false", question: "2. A computer's monitor is an input device.", answer: "False", topic: "Hardware" },
-            { type: "fill-in-the-blank", question: "3. A ________ is a program that lets you surf the internet.", answer: "web browser", topic: "Software" },
-            { type: "matching", question: "4. Match the device to its category.", pairs: [{ left: "Keyboard", right: ["Input Device", "Output Device", "Storage Device"] }, { left: "Printer", right: ["Output Device", "Input Device", "Storage Device"] }], answers: { "Keyboard": "Input Device", "Printer": "Output Device" }, topic: "Hardware" },
-            { type: "short-answer", question: "5. What is a computer virus?", answer: "A program that makes your computer sick.", topic: "Cybersecurity" },
-            { type: "case-study", question: "6. **Case Study:** A student wants to draw a picture on the computer. What is an input device they would use?", answer: "A mouse or a drawing tablet.", topic: "Hardware" },
-            { type: "multiple-choice", question: "7. Which of these stores information for a short time while the computer is on?", options: ["Hard Drive", "RAM", "USB Drive", "CD-ROM"], answer: "RAM", topic: "Hardware" },
-            { type: "true-false", question: "8. Binary code uses only the numbers 0 and 1.", answer: "True", topic: "Data Representation" },
-            { type: "fill-in-the-blank", question: "9. An ________ is a set of instructions that a computer follows.", answer: "algorithm", topic: "Programming" },
-            { type: "matching", question: "10. Match the term to its definition.", pairs: [{ left: "URL", right: ["Website address", "Computer name", "Picture file"] }, { left: "WiFi", right: ["Wireless internet", "A type of wire", "A type of bug"] }], answers: { "URL": "Website address", "WiFi": "Wireless internet" }, topic: "Networking" },
-            { type: "short-answer", question: "11. What is the difference between hardware and software?", answer: "Hardware is the physical parts of a computer; software is the programs.", topic: "General Concepts" },
-            { type: "case-study", question: "12. **Case Study:** A student wants to send an email to a friend. What kind of software would they use?", answer: "An email program or application.", topic: "Software" },
-            { type: "multiple-choice", question: "13. What does 'HTML' stand for?", options: ["Hyper Text Markup Language", "High-Tech Mail", "Home T-Shirt Maker", "Human Text Machine Language"], answer: "Hyper Text Markup Language", topic: "Web Development" },
-            { type: "true-false", question: "14. Deleting a file moves it to a permanent location on the hard drive.", answer: "False", topic: "Data Management" },
-            { type: "fill-in-the-blank", question: "15. A ________ is a program that allows you to see pictures, videos, and text on a web page.", answer: "web browser", topic: "Web Development" },
-            { type: "matching", question: "16. Match the storage type to its use.", pairs: [{ left: "Flash Drive", right: ["Portable storage", "Primary memory", "Permanent internal storage"] }, { left: "Hard Drive", right: ["Permanent internal storage", "Short-term memory", "Portable storage"] }], answers: { "Flash Drive": "Portable storage", "Hard Drive": "Permanent internal storage" }, topic: "Hardware" },
-            { type: "short-answer", question: "17. What is the purpose of an 'undo' button in a program?", answer: "To reverse the last action you made.", topic: "Software" },
-            { type: "case-study", question: "18. **Case Study:** A teacher needs to keep track of student names and grades. What kind of software would be most helpful?", answer: "A spreadsheet or a database program.", topic: "Data Management" },
-            { type: "multiple-choice", question: "19. Which of these is a type of output device?", options: ["Scanner", "Microphone", "Speakers", "Webcam"], answer: "Speakers", topic: "Hardware" },
-            { type: "true-false", question: "20. The Internet is the same thing as the World Wide Web.", answer: "False", topic: "Networking" },
-            { type: "fill-in-the-blank", question: "21. A ________ is a small picture on the screen you click to open a program.", answer: "icon", topic: "General Concepts" },
-            { type: "matching", question: "22. Match the term to its security definition.", pairs: [{ left: "Phishing", right: ["Tricking people to get their passwords", "A type of computer bug", "A fast internet speed"] }, { left: "Firewall", right: ["Protects your computer from outside attacks", "Makes your computer faster", "A type of virus"] }], answers: { "Phishing": "Tricking people to get their passwords", "Firewall": "Protects your computer from outside attacks" }, topic: "Cybersecurity" },
-            { type: "short-answer", question: "23. What is a variable in programming?", answer: "A container for storing data.", topic: "Programming" },
-            { type: "case-study", question: "24. **Case Study:** A student wants to find a safe way to share pictures with friends. What is a safe online practice?", answer: "Using a private social media account or a password-protected folder.", topic: "Cybersecurity" },
-            { type: "multiple-choice", question: "25. What is a collection of related data stored in an organized way?", options: ["Database", "Text Document", "Image File", "Folder"], answer: "Database", topic: "Data Management" },
-            { type: "true-false", question: "26. A loop in programming is used to repeat instructions.", answer: "True", topic: "Programming" },
-            { type: "fill-in-the-blank", question: "27. The letters 'WWW' in a website address stand for World Wide _________.", answer: "Web", topic: "Web Development" },
-            { type: "matching", question: "28. Match the device to its function.", pairs: [{ left: "Router", right: ["Connects your home to the internet", "Stores movies", "Prints papers"] }, { left: "Webcam", right: ["Lets you make video calls", "Plays music", "Scans documents"] }], answers: { "Router": "Connects your home to the internet", "Webcam": "Lets you make video calls" }, topic: "Networking" },
-            { type: "short-answer", question: "29. What is a bug in computer science?", answer: "An error or a problem in a program.", topic: "Programming" },
-            { type: "case-study", question: "30. **Case Study:** A student is learning to code and wants to make a program that prints their name 5 times. What programming concept should they use?", answer: "A loop.", topic: "Programming" },
-            { type: "multiple-choice", question: "31. What is an operating system?", options: ["A type of game", "The main software that manages the computer", "A part of the keyboard", "A type of cable"], answer: "The main software that manages the computer", topic: "Software" },
-            { type: "true-false", question: "32. The binary number 10 is equal to the number 2 in our number system.", answer: "True", topic: "Data Representation" },
-            { type: "fill-in-the-blank", question: "33. A ________ is a type of malware that tricks you into downloading it by pretending to be useful software.", answer: "Trojan horse", topic: "Cybersecurity" },
-            { type: "matching", question: "34. Match the file extension to its type.", pairs: [{ left: ".jpg", right: ["Picture file", "Text file", "Video file"] }, { left: ".doc", right: ["Text file", "Picture file", "Music file"] }], answers: { ".jpg": "Picture file", ".doc": "Text file" }, topic: "File Types" },
-            { type: "short-answer", question: "35. What is the main purpose of a password?", answer: "To protect your information from other people.", topic: "Cybersecurity" },
-            { type: "case-study", question: "36. **Case Study:** A student wants to make a website about their favorite animal. What language would they use to build the structure of the page?", answer: "HTML.", topic: "Web Development" },
-            { type: "multiple-choice", question: "37. What is a server?", options: ["A program that helps you write emails", "A computer that provides services to other computers", "A physical part of a mouse", "A type of internet browser"], answer: "A computer that provides services to other computers", topic: "Networking" },
-            { type: "true-false", question: "38. Every computer connected to the internet has a unique IP address.", answer: "True", topic: "Networking" },
-            { type: "fill-in-the-blank", question: "39. The process of turning an algorithm into code is called ________.", answer: "coding or programming", topic: "Programming" },
-            { type: "matching", question: "40. Match the term to its security definition.", pairs: [{ left: "Spam", right: ["Unwanted emails", "A type of computer hardware", "A type of computer game"] }, { left: "Spyware", right: ["Software that secretly watches what you do", "A type of computer accessory", "Software that makes your computer faster"] }], answers: { "Spam": "Unwanted emails", "Spyware": "Software that secretly watches what you do" }, topic: "Cybersecurity" },
-            { type: "short-answer", question: "41. What is cloud computing?", answer: "Using computer services over the internet instead of on your own computer.", topic: "Networking" },
-            { type: "case-study", question: "42. **Case Study:** A programmer needs to find a mistake in their code. What is this process called?", answer: "Debugging.", topic: "Programming" },
-            { type: "multiple-choice", question: "43. What is a GUI?", options: ["A type of computer game", "A Graphical User Interface with pictures you can click", "A special type of computer monitor", "A new computer language"], answer: "A Graphical User Interface with pictures you can click", topic: "General Concepts" },
-            { type: "true-false", question: "44. The binary number 11 is equal to the number 3 in our number system.", answer: "True", topic: "Data Representation" },
-            { type: "fill-in-the-blank", question: "45. A ________ is a diagram that shows the steps of an algorithm.", answer: "flowchart", topic: "Programming" },
-            { type: "matching", question: "46. Match the device to its category.", pairs: [{ left: "Mouse", right: ["Input Device", "Output Device"] }, { left: "Monitor", right: ["Output Device", "Input Device"] }], answers: { "Mouse": "Input Device", "Monitor": "Output Device" }, topic: "Hardware" },
-            { type: "short-answer", question: "47. What is the difference between saving a file to the hard drive and saving it to a cloud service?", answer: "Saving to the hard drive keeps it on your computer; saving to the cloud keeps it on the internet.", topic: "Data Management" },
-            { type: "case-study", question: "48. **Case Study:** A student gets a pop-up ad that looks like a warning but asks them to click a link. What is this likely to be?", answer: "A scam or a malware pop-up.", topic: "Cybersecurity" },
-            { type: "multiple-choice", question: "49. Which of these is a form of malware that asks for money to unlock your files?", options: ["Adware", "Ransomware", "Spyware", "Trojan Horse"], answer: "Ransomware", topic: "Cybersecurity" },
-            { type: "true-false", question: "50. All software needs to be installed on a computer to work.", answer: "False", topic: "Software" },
-            { type: "fill-in-the-blank", question: "51. A ________ is a set of rules that computers use to talk to each other.", answer: "protocol", topic: "Networking" },
-            { type: "matching", question: "52. Match the hardware component to its function.", pairs: [{ left: "CPU", right: ["Does calculations", "Stores data permanently"] }, { left: "RAM", right: ["Stores temporary data", "Does calculations"] }], answers: { "CPU": "Does calculations", "RAM": "Stores temporary data" }, topic: "Hardware" },
-            { type: "short-answer", question: "53. What does 'copy' and 'paste' do?", answer: "Copy makes a duplicate of something, and paste places it in a new location.", topic: "Software" },
-            { type: "case-study", question: "54. **Case Study:** A student wants to store a list of all their classmates' names. What kind of data structure should they use?", answer: "An array or a list.", topic: "Programming" },
-            { type: "multiple-choice", question: "55. Which of these is a type of memory that loses its data when the power is turned off?", options: ["Hard Drive", "SSD", "Flash Drive", "RAM"], answer: "RAM", topic: "Hardware" },
-            { type: "true-false", question: "56. A search engine is a type of web browser.", answer: "False", topic: "Web Development" },
-            { type: "fill-in-the-blank", question: "57. The process of finding and fixing errors in code is called ________.", answer: "debugging", topic: "Programming" },
-            { type: "matching", question: "58. Match the term to its meaning.", pairs: [{ left: "Data", right: ["Information, numbers, or facts", "A type of cable"] }, { left: "Byte", right: ["A unit of computer data", "A type of programming language"] }], answers: { "Data": "Information, numbers, or facts", "Byte": "A unit of computer data" }, topic: "Data Representation" },
-            { type: "short-answer", question: "59. What is the difference between a LAN and a WAN?", answer: "A LAN is a network in a small area like a school; a WAN is a network that covers a large area like a city or country.", topic: "Networking" },
-            { type: "case-study", question: "60. **Case Study:** A student wants to make their website look nice with different colors and fonts. What language should they use for that?", answer: "CSS.", topic: "Web Development" },
-            { type: "multiple-choice", question: "61. What is the main purpose of an antivirus program?", options: ["To make your computer faster", "To protect your computer from viruses", "To let you browse the internet", "To help you print documents"], answer: "To protect your computer from viruses", topic: "Cybersecurity" },
-            { type: "true-false", question: "62. A computer's keyboard is a processing device.", answer: "False", topic: "Hardware" },
-            { type: "fill-in-the-blank", question: "63. The smallest piece of information a computer can store is a ________.", answer: "bit", topic: "Data Representation" },
-            { type: "matching", question: "64. Match the file extension to its type.", pairs: [{ left: ".mp3", right: ["Audio file", "Text file"] }, { left: ".mp4", right: ["Video file", "Audio file"] }], answers: { ".mp3": "Audio file", ".mp4": "Video file" }, topic: "File Types" },
-            { type: "short-answer", question: "65. What is a flowchart used for?", answer: "To visually show the steps of a program or process.", topic: "Programming" },
-            { type: "case-study", question: "66. **Case Study:** A student receives an email from an unknown person asking for their password to a gaming account. What should they do?", answer: "Not reply and delete the email.", topic: "Cybersecurity" },
-            { type: "multiple-choice", question: "67. What is an algorithm?", options: ["A type of computer virus", "A set of rules to solve a problem", "A type of computer hardware", "A new kind of video game"], answer: "A set of rules to solve a problem", topic: "Programming" },
-            { type: "true-false", question: "68. A computer's operating system is a type of hardware.", answer: "False", topic: "Software" },
-            { type: "fill-in-the-blank", question: "69. An ________ is a program that lets you listen to music.", answer: "application or app", topic: "Software" },
-            { type: "matching", question: "70. Match the term to its function.", pairs: [{ left: "Hard Drive", right: ["Stores a lot of data permanently", "Stores a little data temporarily"] }, { left: "Motherboard", right: ["Connects all the parts of the computer", "Shows pictures on a screen"] }], answers: { "Hard Drive": "Stores a lot of data permanently", "Motherboard": "Connects all the parts of the computer" }, topic: "Hardware" },
-            { type: "short-answer", question: "71. What does the term 'save' mean in computer science?", answer: "To store a document or file on a storage device.", topic: "Data Management" },
-            { type: "case-study", question: "72. **Case Study:** A student wants to share a file with a friend on another computer. What kind of connection would they use?", answer: "A network connection or the internet.", topic: "Networking" },
-            { type: "multiple-choice", question: "73. Which of these is a type of input device?", options: ["Microphone", "Speakers", "Printer", "Monitor"], answer: "Microphone", topic: "Hardware" },
-            { type: "true-false", question: "74. The decimal number 5 is represented as 101 in binary.", answer: "True", topic: "Data Representation" },
-            { type: "fill-in-the-blank", question: "75. A ________ is a tool that helps you search for information on the internet.", answer: "search engine", topic: "Web Development" },
-            { type: "matching", question: "76. Match the term to its definition.", pairs: [{ left: "Folder", right: ["A place to store files", "A type of programming language"] }, { left: "File", right: ["A document or program", "A type of computer game"] }], answers: { "Folder": "A place to store files", "File": "A document or program" }, topic: "Data Management" },
-            { type: "short-answer", question: "77. What does the term 'online' mean?", answer: "Connected to the internet.", topic: "Networking" },
-            { type: "case-study", question: "78. **Case Study:** A student wants to create a simple quiz game with two possible choices. What programming concept would they use to check the answer?", answer: "An if-else statement or a conditional statement.", topic: "Programming" },
-            { type: "multiple-choice", question: "79. What is a computer network?", options: ["A single computer", "Two or more computers connected together", "A computer game", "A type of cable"], answer: "Two or more computers connected together", topic: "Networking" },
-            { type: "true-false", question: "80. Every website uses the same programming language.", answer: "False", topic: "Web Development" },
-            { type: "fill-in-the-blank", question: "81. A ________ is a device that connects all the different parts of a computer to each other.", answer: "motherboard", topic: "Hardware" },
-            { type: "matching", question: "82. Match the task to the type of program used.", pairs: [{ left: "Typing a story", right: ["Word Processor", "Web Browser"] }, { left: "Doing math problems", right: ["Spreadsheet", "Image Editor"] }], answers: { "Typing a story": "Word Processor", "Doing math problems": "Spreadsheet" }, topic: "Software" },
-            { type: "short-answer", question: "83. What is the purpose of an IP address?", answer: "To uniquely identify a computer on a network.", topic: "Networking" },
-            { type: "case-study", question: "84. **Case Study:** A student is working on a school project and needs to find pictures of different animals. What is the safest way to do this?", answer: "Using a search engine and a reliable image source.", topic: "Web Development" },
-            { type: "multiple-choice", question: "85. What does the term 'programming' mean?", options: ["Playing video games", "Building a computer", "Writing instructions for a computer", "Talking to a robot"], answer: "Writing instructions for a computer", topic: "Programming" },
-            { type: "true-false", question: "86. An array is a data structure used to store a collection of elements of the same data type.", answer: "True", topic: "Programming" },
-            { type: "fill-in-the-blank", question: "87. A _________ is a type of malicious software that can copy itself and spread to other computers.", answer: "worm", topic: "Cybersecurity" },
-            { type: "matching", question: "88. Match the memory type to its characteristic.", pairs: [{ left: "RAM", right: ["Volatile", "Non-volatile"] }, { left: "Hard drive", right: ["Non-volatile", "Volatile"] }], answers: { "RAM": "Volatile", "Hard drive": "Non-volatile" }, topic: "Hardware" },
-            { type: "short-answer", question: "89. In programming, what is a constant?", answer: "A value that cannot be changed after it is defined.", topic: "Programming" },
-            { type: "case-study", question: "90. **Case Study:** A user has lost an important file. They remember that they backed up their computer to the cloud last week. What is the process they should use to get the file back?", answer: "Data restoration or restoring from a backup", topic: "Data Management" },
-            { type: "multiple-choice", question: "91. What is the process of putting a program into action called?", options: ["Compiling", "Debugging", "Running", "Writing"], answer: "Running", topic: "Programming" },
-            { type: "true-false", question: "92. A firewall can be both hardware and software.", answer: "True", topic: "Cybersecurity" },
-            { type: "fill-in-the-blank", question: "93. A _________ is a programming construct that allows a block of code to be executed repeatedly.", answer: "loop", topic: "Programming" },
-            { type: "matching", question: "94. Match the term to its security purpose.", pairs: [{ left: "Encryption", right: ["Protects data in transit", "Blocks network access", "Scans for viruses"] }, { left: "Firewall", right: ["Blocks network access", "Protects data in transit", "Scans for viruses"] }], answers: { "Encryption": "Protects data in transit", "Firewall": "Blocks network access" }, topic: "Cybersecurity" },
-            { type: "short-answer", question: "95. What is the main function of an IP address?", answer: "To uniquely identify a device on a network.", topic: "Networking" },
-            { type: "case-study", question: "96. **Case Study:** A programmer needs to design a login system. What two main pieces of user data do they need to securely store?", answer: "Username and password (encrypted)", topic: "Data Management" },
-            { type: "multiple-choice", question: "97. Which of the following is a common programming error?", options: ["Syntax error", "Data error", "Network error", "Hardware error"], answer: "Syntax error", topic: "Programming" },
-            { type: "true-false", question: "98. The binary number 11 is equal to 3 in decimal.", answer: "True", topic: "Data Representation" },
-            { type: "fill-in-the-blank", question: "99. A _________ is a type of malware that self-replicates and spreads to other computers.", answer: "worm", topic: "Cybersecurity" },
-            { type: "short-answer", question: "100. What is a GUI?", answer: "A Graphical User Interface, which allows users to interact with a computer using visual icons and indicators.", topic: "General Concepts" }
+            { type: "multiple-choice", question: "1. Which of these is a computer part you can touch?", options: ["Software", "Hardware", "Data", "Virus"], answer: "Hardware", topic: "Hardware" },
+            { type: "true-false", question: "2. The monitor is used for typing letters.", answer: "False", topic: "Hardware" },
+            { type: "fill-in-the-blank", question: "3. The main screen you see when you turn on a computer is called the _________.", answer: "desktop", topic: "Software" },
+            { type: "matching", question: "4. Match the device to its type.", pairs: [{ left: "Keyboard", right: ["Input Device", "Output Device"] }, { left: "Printer", right: ["Output Device", "Input Device"] }], answers: { "Keyboard": "Input Device", "Printer": "Output Device" }, topic: "Hardware" },
+            { type: "short-answer", question: "5. What is an 'app' short for?", answer: "Application", topic: "Software" },
+            { type: "case-study", question: "6. **Case Study:** A student wants to draw a picture on the computer. What type of program would they use?", answer: "A drawing or painting program.", topic: "Software" },
+            { type: "multiple-choice", question: "7. Which of these is a safe password?", options: ["123456", "password", "MyDogSparky", "f0rty$even#"], answer: "f0rty$even#", topic: "Digital Citizenship" },
+            { type: "true-false", question: "8. A tablet is a type of computer.", answer: "True", topic: "Hardware" },
+            { type: "fill-in-the-blank", question: "9. To find a website, you type its _________ into the address bar.", answer: "URL", topic: "Internet" },
+            { type: "matching", question: "10. Match the action to the program.", pairs: [{ left: "Typing a story", right: ["Word Processor", "Web Browser"] }, { left: "Finding a website", right: ["Web Browser", "Word Processor"] }], answers: { "Typing a story": "Word Processor", "Finding a website": "Web Browser" }, topic: "Software" },
+            { type: "short-answer", question: "11. What is the main purpose of a 'search engine'?", answer: "To help you find information on the internet.", topic: "Internet" },
+            { type: "case-study", question: "12. **Case Study:** A student finds a funny picture online and wants to share it with a friend. What is the safest way to do this?", answer: "By asking an adult for help.", topic: "Digital Citizenship" },
+            { type: "multiple-choice", question: "13. What is a 'digital footprint'?", options: ["A mark left by a computer mouse", "The trail of data we leave online", "A type of keyboard", "A computer game"], answer: "The trail of data we leave online", topic: "Digital Citizenship" },
+            { type: "true-false", question: "14. A computer mouse is an input device.", answer: "True", topic: "Hardware" },
+            { type: "fill-in-the-blank", question: "15. The 'brain' of the computer is the _________.", answer: "CPU", topic: "Hardware" },
+            { type: "matching", question: "16. Match the term to its definition.", pairs: [{ left: "Monitor", right: ["An output device that shows images", "An input device for typing"] }, { left: "Keyboard", right: ["An input device for typing", "An output device that shows images"] }], answers: { "Monitor": "An output device that shows images", "Keyboard": "An input device for typing" }, topic: "Hardware" },
+            { type: "short-answer", question: "17. What does 'copy and paste' do?", answer: "It duplicates text or a picture from one place to another.", topic: "Software" },
+            { type: "case-study", question: "18. **Case Study:** A student is working on a school project and needs to save their work. What button or command should they use?", answer: "The 'Save' or 'Save As' command.", topic: "File Management" },
+            { type: "multiple-choice", question: "19. Which of these is a way to stay safe online?", options: ["Giving out personal information", "Talking to strangers online", "Using a strong password", "Clicking on every link"], answer: "Using a strong password", topic: "Digital Citizenship" },
+            { type: "true-false", question: "20. A file is a collection of data stored on a computer.", answer: "True", topic: "File Management" },
+            { type: "fill-in-the-blank", question: "21. A _________ is a program that lets you surf the internet.", answer: "web browser", topic: "Internet" },
+            { type: "matching", question: "22. Match the device to what it is used for.", pairs: [{ left: "Speaker", right: ["Listening to sound", "Drawing on a screen"] }, { left: "Webcam", right: ["Taking pictures or video", "Listening to sound"] }], answers: { "Speaker": "Listening to sound", "Webcam": "Taking pictures or video" }, topic: "Hardware" },
+            { type: "short-answer", question: "23. What is an 'operating system'?", answer: "The main program that controls the computer's hardware and software.", topic: "Software" },
+            { type: "case-study", question: "24. **Case Study:** A student wants to send a letter to their grandmother using a computer. What program would they most likely use?", answer: "A word processor like Microsoft Word or Google Docs.", topic: "Software" },
+            { type: "multiple-choice", question: "25. Which of these is an example of a social media site?", options: ["Google", "Facebook", "Amazon", "Netflix"], answer: "Facebook", topic: "Internet" },
+            { type: "true-false", question: "26. You should always open an email attachment from a sender you don't know.", answer: "False", topic: "Digital Citizenship" },
+            { type: "fill-in-the-blank", question: "27. To make a document private, you can add a _________ to it.", answer: "password", topic: "Digital Citizenship" },
+            { type: "matching", question: "28. Match the device to its category.", pairs: [{ left: "Microphone", right: ["Input Device", "Output Device"] }, { left: "Headphones", right: ["Output Device", "Input Device"] }], answers: { "Microphone": "Input Device", "Headphones": "Output Device" }, topic: "Hardware" },
+            { type: "short-answer", question: "29. What is 'cyberbullying'?", answer: "Using technology to hurt or scare someone.", topic: "Digital Citizenship" },
+            { type: "case-study", question: "30. **Case Study:** A student wants to make a video of their school trip. What device would they use to film it?", answer: "A digital camera, webcam, or a smartphone.", topic: "Hardware" },
+            { type: "multiple-choice", question: "31. Which of these is a type of computer?", options: ["Refrigerator", "Desktop computer", "Lamp", "Chair"], answer: "Desktop computer", topic: "Hardware" },
+            { type: "true-false", question: "32. The internet is the same thing as the World Wide Web.", answer: "False", topic: "Internet" },
+            { type: "fill-in-the-blank", question: "33. A _________ is a folder that holds other files and folders.", answer: "folder", topic: "File Management" },
+            { type: "matching", question: "34. Match the file type to its content.", pairs: [{ left: ".jpg", right: ["Picture file", "Text file"] }, { left: ".txt", right: ["Text file", "Picture file"] }], answers: { ".jpg": "Picture file", ".txt": "Text file" }, topic: "File Management" },
+            { type: "short-answer", question: "35. What is the purpose of a 'backup'?", answer: "To make a copy of a file in case the original is lost or damaged.", topic: "File Management" },
+            { type: "case-study", question: "36. **Case Study:** A student is working on a school project and needs to save their work. What button or command should they use?", answer: "The 'Save' or 'Save As' command.", topic: "File Management" },
+            { type: "multiple-choice", question: "37. What is 'computer programming'?", options: ["Playing a game on the computer", "Giving instructions to a computer to solve a problem", "Typing a document", "Sending a message"], answer: "Giving instructions to a computer to solve a problem", topic: "Programming" },
+            { type: "true-false", question: "38. All computers are connected to the internet.", answer: "False", topic: "Internet" },
+            { type: "fill-in-the-blank", question: "39. The process of turning off your computer is called _________.", answer: "shutting down", topic: "Hardware" },
+            { type: "matching", question: "40. Match the term to its meaning.", pairs: [{ left: "Download", right: ["To copy a file from the internet to your computer", "To send a file from your computer to the internet"] }, { left: "Upload", right: ["To send a file from your computer to the internet", "To copy a file from the internet to your computer"] }], answers: { "Download": "To copy a file from the internet to your computer", "Upload": "To send a file from your computer to the internet" }, topic: "Internet" },
+            { type: "short-answer", question: "41. What is a 'virus' in a computer?", answer: "A harmful program that can damage your computer or steal your information.", topic: "Digital Citizenship" },
+            { type: "case-study", question: "42. **Case Study:** A student wants to make a family tree. They need to put a picture and a name for each person. What kind of program would be best?", answer: "A presentation or diagram program.", topic: "Software" },
+            { type: "multiple-choice", question: "43. What does 'Wi-Fi' stand for?", options: ["Wired Fidelity", "Wireless Fidelity", "Web Fire", "Web Filter"], answer: "Wireless Fidelity", topic: "Internet" },
+            { type: "true-false", question: "44. You should share your personal information like your address or phone number online.", answer: "False", topic: "Digital Citizenship" },
+            { type: "fill-in-the-blank", question: "45. The physical parts of a computer are called _________.", answer: "hardware", topic: "Hardware" },
+            { type: "matching", question: "46. Match the device to its category.", pairs: [{ left: "Scanner", right: ["Input device", "Output device"] }, { left: "Monitor", right: ["Output device", "Input device"] }], answers: { "Scanner": "Input device", "Monitor": "Output device" }, topic: "Hardware" },
+            { type: "short-answer", question: "47. What is 'netiquette'?", answer: "The set of rules for good behavior online.", topic: "Digital Citizenship" },
+            { type: "case-study", question: "48. **Case Study:** A student needs to email a picture to their teacher. What command would they use in the email program?", answer: "The 'attach' or 'insert' command.", topic: "Internet" },
+            { type: "multiple-choice", question: "49. Which of these is a way to protect your computer?", options: ["Installing antivirus software", "Clicking on pop-up ads", "Sharing your password", "Downloading files from unknown sources"], answer: "Installing antivirus software", topic: "Digital Citizenship" },
+            { type: "true-false", question: "50. A program is a set of instructions that a computer can follow.", answer: "True", topic: "Programming" },
         ];
-
+        
+        // State variables for the quiz
         let currentQuestionIndex = 0;
         let score = 0;
         const userAnswers = {};
         let studentName = "";
 
+        // Get DOM elements
         const titlePage = document.getElementById('title-page');
         const quizPage = document.getElementById('quiz-page');
         const resultPage = document.getElementById('result-page');
@@ -269,10 +271,13 @@
         const nextButton = document.getElementById('next-button');
         const previousButton = document.getElementById('previous-button');
 
-        function startTest() {
+        /**
+         * Starts the assessment, checks for student name, and displays the first question.
+         */
+        function startAssessment() {
             studentName = document.getElementById('studentName').value.trim();
             if (!studentName) {
-                alert("Please enter your full name to start the test.");
+                showModal("Please enter your full name to start the assessment.");
                 return;
             }
             document.getElementById('student-name-result').textContent = studentName;
@@ -281,6 +286,9 @@
             loadQuestion();
         }
 
+        /**
+         * Renders the current question based on the `currentQuestionIndex`.
+         */
         function loadQuestion() {
             if (currentQuestionIndex < 0) currentQuestionIndex = 0;
             if (currentQuestionIndex >= quizData.length) currentQuestionIndex = quizData.length - 1;
@@ -295,6 +303,7 @@
             let questionHTML = `<h4>${q.question}</h4>`;
             questionDiv.innerHTML = questionHTML;
 
+            // Render different question types and add event listeners
             if (q.type === 'multiple-choice' || q.type === 'true-false') {
                 const optionsDiv = document.createElement('div');
                 optionsDiv.classList.add('options');
@@ -302,11 +311,12 @@
                     const inputId = `q${currentQuestionIndex}-opt-${option.replace(/\s+/g, '-')}`;
                     optionsDiv.innerHTML += `
                         <label for="${inputId}">
-                            <input type="radio" name="answer" id="${inputId}" value="${option}"> ${option}
+                            <input type="radio" name="answer" id="${inputId}" value="${option}" onchange="checkAnswerStatus()"> ${option}
                         </label>
                     `;
                 });
                 questionDiv.appendChild(optionsDiv);
+                // Pre-fill answer if it exists
                 if (userAnswers[currentQuestionIndex]) {
                     const savedAnswer = userAnswers[currentQuestionIndex];
                     const selectedInput = document.querySelector(`input[name="answer"][value="${savedAnswer}"]`);
@@ -320,24 +330,28 @@
                 input.placeholder = 'Type your answer here...';
                 input.id = 'text-answer';
                 input.style.width = 'calc(100% - 22px)';
+                input.setAttribute('oninput', 'checkAnswerStatus()');
+                // Pre-fill answer if it exists
                 if (userAnswers[currentQuestionIndex]) {
                     input.value = userAnswers[currentQuestionIndex];
                 }
                 questionDiv.appendChild(input);
             } else if (q.type === 'matching') {
                 const matchingDiv = document.createElement('div');
+                matchingDiv.id = 'matching-options';
                 q.pairs.forEach((pair, index) => {
                     const pairDiv = document.createElement('div');
                     pairDiv.classList.add('matching-pair');
                     const selectId = `matching-${currentQuestionIndex}-${index}`;
                     pairDiv.innerHTML = `
                         <span>${pair.left}</span>
-                        <select id="${selectId}">
+                        <select id="${selectId}" onchange="checkAnswerStatus()">
                             <option value="">-- Select --</option>
                             ${pair.right.map(r => `<option value="${r}">${r}</option>`).join('')}
                         </select>
                     `;
                     matchingDiv.appendChild(pairDiv);
+                    // Pre-fill answer if it exists
                     setTimeout(() => {
                         if (userAnswers[currentQuestionIndex] && userAnswers[currentQuestionIndex][pair.left]) {
                             document.getElementById(selectId).value = userAnswers[currentQuestionIndex][pair.left];
@@ -349,6 +363,7 @@
 
             questionContainer.appendChild(questionDiv);
 
+            // Manage button visibility and state
             previousButton.style.display = currentQuestionIndex > 0 ? 'inline-block' : 'none';
             if (currentQuestionIndex === quizData.length - 1) {
                 nextButton.style.display = 'none';
@@ -357,16 +372,98 @@
                 nextButton.style.display = 'inline-block';
                 submitButton.style.display = 'none';
             }
+            
+            // Disable next/submit button until an answer is provided
+            checkAnswerStatus();
         }
 
+        /**
+         * Checks if the current question has been answered and enables the next/submit button.
+         */
+        function checkAnswerStatus() {
+            const q = quizData[currentQuestionIndex];
+            let isAnswered = false;
+
+            if (q.type === 'multiple-choice' || q.type === 'true-false') {
+                isAnswered = document.querySelector(`input[name="answer"]:checked`) !== null;
+            } else if (q.type === 'fill-in-the-blank' || q.type === 'short-answer' || q.type === 'case-study') {
+                const textInput = document.getElementById('text-answer');
+                isAnswered = textInput.value.trim() !== '';
+            } else if (q.type === 'matching') {
+                isAnswered = true; // Assume true, then check if any select is empty
+                const selects = document.querySelectorAll(`#matching-options select`);
+                selects.forEach(select => {
+                    if (select.value === "") {
+                        isAnswered = false;
+                    }
+                });
+            }
+
+            if (currentQuestionIndex === quizData.length - 1) {
+                submitButton.disabled = !isAnswered;
+            } else {
+                nextButton.disabled = !isAnswered;
+            }
+        }
+
+        /**
+         * Saves the current answer and moves to the next question.
+         */
+        function nextQuestion() {
+            if (!isCurrentQuestionAnswered()) {
+                showModal("Please answer the current question before proceeding.");
+                return;
+            }
+            saveAnswer();
+            currentQuestionIndex++;
+            loadQuestion();
+        }
+
+        /**
+         * Saves the current answer and moves to the previous question.
+         */
+        function previousQuestion() {
+            saveAnswer();
+            currentQuestionIndex--;
+            loadQuestion();
+        }
+
+        /**
+         * Checks if the current question has been answered.
+         */
+        function isCurrentQuestionAnswered() {
+            const q = quizData[currentQuestionIndex];
+            if (q.type === 'multiple-choice' || q.type === 'true-false') {
+                return document.querySelector(`input[name="answer"]:checked`) !== null;
+            } else if (q.type === 'fill-in-the-blank' || q.type === 'short-answer' || q.type === 'case-study') {
+                const textInput = document.getElementById('text-answer');
+                return textInput.value.trim() !== '';
+            } else if (q.type === 'matching') {
+                const selects = document.querySelectorAll(`#matching-options select`);
+                let answered = true;
+                selects.forEach(select => {
+                    if (select.value === "") {
+                        answered = false;
+                    }
+                });
+                return answered;
+            }
+            return false;
+        }
+
+        /**
+         * Saves the user's answer for the current question.
+         */
         function saveAnswer() {
             const q = quizData[currentQuestionIndex];
             if (q.type === 'multiple-choice' || q.type === 'true-false') {
-                const selected = document.querySelector('input[name="answer"]:checked');
-                userAnswers[currentQuestionIndex] = selected ? selected.value : null;
+                const selected = document.querySelector(`input[name="answer"]:checked`);
+                if (selected) {
+                    userAnswers[currentQuestionIndex] = selected.value;
+                }
             } else if (q.type === 'fill-in-the-blank' || q.type === 'short-answer' || q.type === 'case-study') {
-                const textAnswer = document.getElementById('text-answer');
-                userAnswers[currentQuestionIndex] = textAnswer ? textAnswer.value.trim() : null;
+                const textInput = document.getElementById('text-answer');
+                userAnswers[currentQuestionIndex] = textInput.value.trim();
             } else if (q.type === 'matching') {
                 const matchingAnswers = {};
                 q.pairs.forEach((pair, index) => {
@@ -377,168 +474,195 @@
             }
         }
 
-        function validateAnswer() {
-            const q = quizData[currentQuestionIndex];
-            if (q.type === 'multiple-choice' || q.type === 'true-false') {
-                return document.querySelector('input[name="answer"]:checked') !== null;
-            } else if (q.type === 'fill-in-the-blank' || q.type === 'short-answer' || q.type === 'case-study') {
-                const textAnswer = document.getElementById('text-answer');
-                return textAnswer && textAnswer.value.trim() !== "";
-            } else if (q.type === 'matching') {
-                let allSelected = true;
-                q.pairs.forEach((pair, index) => {
-                    const select = document.getElementById(`matching-${currentQuestionIndex}-${index}`);
-                    if (select.value === "") allSelected = false;
-                });
-                return allSelected;
+        /**
+         * Handles the submission of the assessment.
+         */
+        function submitAssessment() {
+            if (!isCurrentQuestionAnswered()) {
+                showModal("Please answer the current question before submitting.");
+                return;
             }
-            return true;
-        }
-
-        function nextQuestion() {
-            if (validateAnswer()) {
-                saveAnswer();
-                currentQuestionIndex++;
-                loadQuestion();
-            } else {
-                alert("Please answer the current question before proceeding.");
-            }
-        }
-
-        function previousQuestion() {
             saveAnswer();
-            currentQuestionIndex--;
-            loadQuestion();
-        }
-
-        function submitTest() {
-            if (validateAnswer()) {
-                saveAnswer();
-                let correctCount = 0;
-                const topicScores = {};
-                const topicTotals = {};
-                
-                quizData.forEach((q, index) => {
-                    let isCorrect = false;
-                    const userAnswer = userAnswers[index];
-                    const topic = q.topic || "General";
-
-                    topicTotals[topic] = (topicTotals[topic] || 0) + 1;
-
-                    if (q.type === 'multiple-choice' || q.type === 'true-false') {
-                        if (userAnswer === q.answer) isCorrect = true;
-                    } else if (q.type === 'fill-in-the-blank' || q.type === 'short-answer' || q.type === 'case-study') {
-                        if (userAnswer && userAnswer.toLowerCase() === q.answer.toLowerCase()) isCorrect = true;
-                    } else if (q.type === 'matching') {
-                        let allMatchedCorrectly = true;
-                        if (userAnswer) {
-                            for (const term in q.answers) {
-                                if (userAnswer[term] !== q.answers[term]) {
-                                    allMatchedCorrectly = false;
-                                    break;
-                                }
-                            }
-                        } else {
-                            allMatchedCorrectly = false;
-                        }
-                        isCorrect = allMatchedCorrectly;
-                    }
-
-                    if (isCorrect) {
-                        correctCount++;
-                        topicScores[topic] = (topicScores[topic] || 0) + 1;
-                    }
-                });
-
-                score = correctCount;
-                showResults(topicScores, topicTotals);
-            } else {
-                alert("Please answer the final question before submitting.");
-            }
-        }
-
-        function showResults(topicScores, topicTotals) {
             quizPage.style.display = 'none';
             resultPage.style.display = 'block';
-
-            document.getElementById('score').textContent = score;
-            
-            const strengths = [];
-            const weaknesses = [];
-            
-            let strengthsWeaknessesHTML = "<ul>";
-            for (const topic in topicTotals) {
-                const correct = topicScores[topic] || 0;
-                const total = topicTotals[topic];
-                const percentage = (correct / total) * 100;
-                strengthsWeaknessesHTML += `<li>${topic}: ${correct}/${total} (${percentage.toFixed(0)}%)</li>`;
-                if (percentage >= 80) strengths.push(topic);
-                if (percentage < 50) weaknesses.push(topic);
-            }
-            strengthsWeaknessesHTML += "</ul>";
-            document.getElementById('strengths-weaknesses').innerHTML = strengthsWeaknessesHTML;
-
-            const feedback = `
-                Based on your performance, here is a summary of your strengths and areas for development:
-                <br><br><strong>Strengths:</strong> You demonstrated a strong understanding of the following topics: ${strengths.length > 0 ? strengths.join(', ') : 'All topics'}.
-                <br><br><strong>Weaknesses:</strong> Areas that could use more focus include: ${weaknesses.length > 0 ? weaknesses.join(', ') : 'No specific weaknesses were identified'}.
-                <br><br><strong>Recommendations:</strong>
-                <br>- To build on your strong foundation, consider exploring more advanced concepts in your areas of strength.
-                <br>- For areas of weakness, it is recommended that you review core concepts. Reviewing notes, online tutorials, or seeking clarification would be beneficial.
-            `;
-            document.getElementById('feedback').innerHTML = feedback;
-
-            // Formal written report
-            const today = new Date();
-            const date = today.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
-            const parentReportText = `
-[Your School Name]
-[School Address]
-[City, Postal Code]
-[Phone Number]
-[Email Address]
-
-${date}
-
-To the Parents/Guardians of ${studentName},
-
-This letter is a formal report on the Grade 6 Computer Science Diagnostic Test administered on ${date}. The purpose of this assessment was to evaluate your child's foundational knowledge in key areas of computer science.
-
-**Student Information:**
-Student Name: ${studentName}
-Total Score: ${score} out of 100
-
-**Performance Overview:**
-Your child demonstrated a commendable understanding of computer science principles, with particular strength in the following topics: ${strengths.length > 0 ? strengths.join(', ') : 'All topics assessed'}. This indicates a strong grasp of core concepts in these areas.
-
-**Areas for Development:**
-Based on the results, areas that may require additional attention include: ${weaknesses.length > 0 ? weaknesses.join(', ') : 'No specific weaknesses were identified, which is excellent'}. Focusing on these topics through targeted practice can help strengthen your child’s overall comprehension.
-
-**Recommendations:**
-It is recommended that your child reviews the materials related to the identified areas for development. Continued engagement with these subjects will be crucial for their progress.
-
-Please feel free to contact me at your convenience to discuss these results further.
-
-Sincerely,
-
-Mr. Usama Ibnzaid
-Computer Science Teacher
-[Your Teacher Email]
-`;
-            document.getElementById('parent-report').innerText = parentReportText.trim();
+            evaluateAnswers();
+            generateReport();
         }
 
+        /**
+         * Compares user answers to correct answers and calculates the score.
+         */
+        function evaluateAnswers() {
+            score = 0;
+            quizData.forEach((q, index) => {
+                const userAnswer = userAnswers[index];
+                if (q.type === 'multiple-choice' || q.type === 'true-false') {
+                    if (userAnswer === q.answer) {
+                        score++;
+                    }
+                } else if (q.type === 'fill-in-the-blank' || q.type === 'short-answer' || q.type === 'case-study') {
+                    if (userAnswer && userAnswer.toLowerCase() === q.answer.toLowerCase()) {
+                        score++;
+                    }
+                } else if (q.type === 'matching') {
+                    let correctPairs = 0;
+                    let totalPairs = Object.keys(q.answers).length;
+                    for (const key in q.answers) {
+                        if (userAnswer && userAnswer[key] && userAnswer[key] === q.answers[key]) {
+                            correctPairs++;
+                        }
+                    }
+                    if (correctPairs === totalPairs) {
+                        score++;
+                    }
+                }
+            });
+            document.getElementById('score').textContent = score;
+        }
+
+        /**
+         * Generates the personalized report for the student.
+         */
+        function generateReport() {
+            const topicScores = {};
+            const topicCounts = {};
+            
+            // Calculate scores per topic
+            quizData.forEach((q, index) => {
+                const topic = q.topic;
+                const userAnswer = userAnswers[index];
+                if (!topicScores[topic]) {
+                    topicScores[topic] = 0;
+                    topicCounts[topic] = 0;
+                }
+                topicCounts[topic]++;
+
+                if (q.type === 'multiple-choice' || q.type === 'true-false') {
+                    if (userAnswer === q.answer) {
+                        topicScores[topic]++;
+                    }
+                } else if (q.type === 'fill-in-the-blank' || q.type === 'short-answer' || q.type === 'case-study') {
+                    if (userAnswer && userAnswer.toLowerCase() === q.answer.toLowerCase()) {
+                        topicScores[topic]++;
+                    }
+                } else if (q.type === 'matching') {
+                    let correctPairs = 0;
+                    let totalPairs = Object.keys(q.answers).length;
+                    for (const key in q.answers) {
+                        if (userAnswer && userAnswer[key] && userAnswer[key] === q.answers[key]) {
+                            correctPairs++;
+                        }
+                    }
+                    if (correctPairs === totalPairs) {
+                        topicScores[topic]++;
+                    }
+                }
+            });
+
+            let strengthsHTML = '<h4>Strengths</h4><p>Based on the performance, the student has demonstrated a strong understanding of the following areas:</p><ul>';
+            let weaknessesHTML = '<h4>Weaknesses</h4><p>Additional practice is recommended in the following topics:</p><ul>';
+            let feedback = 'Overall, the student has shown a good understanding of the material. ';
+
+            // Determine strengths and weaknesses
+            let strongTopics = [];
+            let weakTopics = [];
+            for (const topic in topicScores) {
+                const percentage = (topicScores[topic] / topicCounts[topic]) * 100;
+                if (percentage >= 80) {
+                    strongTopics.push(topic);
+                } else if (percentage < 50) {
+                    weakTopics.push(topic);
+                }
+            }
+
+            if (strongTopics.length > 0) {
+                strengthsHTML += `<li>${strongTopics.join('</li><li>')}</li>`;
+                feedback += `The student performed exceptionally well in **${strongTopics.join(', ')}**.`;
+            } else {
+                strengthsHTML += '<li>No specific strengths identified. Continued practice is encouraged.</li>';
+                feedback += 'Continued practice across all topics will help to build a stronger foundation.';
+            }
+
+            if (weakTopics.length > 0) {
+                weaknessesHTML += `<li>${weakTopics.join('</li><li>')}</li>`;
+                feedback += ` It is recommended that the student receive additional support in **${weakTopics.join(', ')}**.`;
+            } else {
+                weaknessesHTML += '<li>No specific weaknesses identified.</li>';
+                feedback += 'The student has a good grasp of the material across all topics.';
+            }
+
+            strengthsHTML += '</ul>';
+            weaknessesHTML += '</ul>';
+
+            document.getElementById('strengths-weaknesses').innerHTML = strengthsHTML + weaknessesHTML;
+            document.getElementById('feedback').textContent = feedback;
+            document.getElementById('parent-report').textContent = generateFormalReport(studentName);
+        }
+        
+        /**
+         * Generates the formal, positive parent report.
+         * @param {string} name - The student's name.
+         */
+        function generateFormalReport(name) {
+            return `Dear Guardian of ${name},
+
+This report provides a formal overview of the recent ICT diagnostic assessment completed by ${name}. This assessment is strictly a diagnostic tool designed to evaluate the student's current proficiency and identify areas of strength and areas that may require further development. This is not a graded test and will not affect the student's academic standing.
+
+The results of this assessment will be utilized by our instructional team to create a highly personalized learning plan for ${name}, ensuring that educational support is precisely tailored to their individual needs.
+
+We appreciate ${name}'s diligent effort during this assessment. The requirement to answer each question before moving to the next encourages a focused and careful approach, and ${name} successfully demonstrated this commitment to the task.
+
+The insights gained from this diagnostic will be invaluable in guiding future instruction and fostering continued academic growth. We look forward to partnering with you in ${name}'s educational journey.
+
+Sincerely,
+Mr. Usama Ibnzaid
+Riyadh schools - Hittin`;
+        }
+
+        /**
+         * Downloads the generated report as a text file.
+         */
         function downloadReport() {
-            const reportContent = document.getElementById('parent-report').innerText;
+            const reportContent = `
+ICT Diagnostic Assessment Report
+Student: ${studentName}
+Score: ${score} / ${quizData.length}
+
+Strengths:
+${document.getElementById('strengths-weaknesses').querySelector('h4').nextElementSibling.textContent}
+
+Weaknesses:
+${document.getElementById('strengths-weaknesses').querySelectorAll('h4')[1].nextElementSibling.textContent}
+
+Constructive Feedback:
+${document.getElementById('feedback').textContent}
+
+Formal Report to Parent/Guardian:
+${document.getElementById('parent-report').textContent}
+            `;
             const blob = new Blob([reportContent], { type: 'text/plain' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `${studentName.replace(/ /g, '_')}_Computer_Science_Report.txt`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `${studentName}_ICT_Assessment_Report.txt`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        /**
+         * Simple modal for alerts, replacing the native alert() function.
+         */
+        function showModal(message) {
+            const modal = document.createElement('div');
+            modal.classList.add('modal');
+            const modalContent = document.createElement('div');
+            modalContent.classList.add('modal-content');
+            modalContent.innerHTML = `
+                <p>${message}</p>
+                <button onclick="this.parentNode.parentNode.remove()">OK</button>
+            `;
+            modal.appendChild(modalContent);
+            document.body.appendChild(modal);
         }
     </script>
 </body>
