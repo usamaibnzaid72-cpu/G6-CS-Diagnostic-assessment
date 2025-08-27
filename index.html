@@ -1,9 +1,11 @@
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Grade 6 ICT Diagnostic Assessment</title>
+    <title>Grade 6 Computer Science Diagnostic Assessment</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -17,7 +19,6 @@
             justify-content: center;
             min-height: 100vh;
         }
-
         .container {
             background-color: rgba(0, 0, 0, 0.5);
             padding: 30px;
@@ -27,37 +28,30 @@
             max-width: 800px;
             margin: 20px;
         }
-
         .logo {
             display: block;
             margin: 0 auto 20px auto;
             max-width: 150px;
         }
-
         .title-page, .quiz-page, .result-page {
             display: none;
             text-align: center;
         }
-
         .title-page {
             display: block;
         }
-
         h1, h2, h3 {
             color: #ccff90;
         }
-
         .input-group {
             margin-bottom: 20px;
             text-align: left;
         }
-
         .input-group label {
             display: block;
             margin-bottom: 5px;
             font-weight: bold;
         }
-
         .input-group input {
             width: 100%;
             padding: 8px;
@@ -65,7 +59,6 @@
             border-radius: 5px;
             box-sizing: border-box;
         }
-
         button {
             padding: 10px 20px;
             border: none;
@@ -76,16 +69,13 @@
             cursor: pointer;
             transition: background-color 0.3s;
         }
-
         button:hover:not(:disabled) {
             background-color: #004d4d;
         }
-        
         button:disabled {
             background-color: #555;
             cursor: not-allowed;
         }
-
         .question {
             margin-bottom: 20px;
             padding: 15px;
@@ -93,49 +83,40 @@
             border-radius: 8px;
             text-align: left;
         }
-
         .options label {
             display: block;
             margin: 10px 0;
             cursor: pointer;
         }
-
         .matching-pair {
             display: flex;
             justify-content: space-between;
             margin-bottom: 10px;
+            align-items: center;
         }
-
         .matching-pair select {
             width: 45%;
             padding: 5px;
             border-radius: 5px;
         }
-
         .report-section {
             text-align: left;
             margin-top: 20px;
         }
-
         .report-section .feedback-section {
             padding: 10px;
             border-radius: 8px;
             margin-bottom: 10px;
         }
-
         .report-section .strength {
-            background-color: #006400; /* Darker green */
+            background-color: #006400;
         }
-        
         .report-section .weakness {
-            background-color: #8B0000; /* Darker red */
+            background-color: #8B0000;
         }
-        
         .report-section .feedback-box {
             background-color: rgba(255, 255, 255, 0.1);
         }
-
-        /* Modal styling */
         .modal {
             position: fixed;
             z-index: 1000;
@@ -148,7 +129,6 @@
             align-items: center;
             justify-content: center;
         }
-
         .modal-content {
             background-color: #333;
             padding: 20px;
@@ -157,9 +137,16 @@
             max-width: 400px;
             text-align: center;
         }
-
         .modal-content button {
             margin-top: 15px;
+        }
+        pre code {
+            display: block;
+            padding: 10px;
+            background-color: #222;
+            border-radius: 5px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
         }
     </style>
 </head>
@@ -167,7 +154,7 @@
     <div class="container">
         <div class="title-page" id="title-page">
             <img src="https://storage.googleapis.com/yaschools/schools-logo/148544809806-19-2025-10-34-06.jpg" alt="School Logo" class="logo">
-            <h1>Grade 6 – ICT<br>Diagnostic Assessment</h1>
+            <h1>Grade 6 – Computer Science<br>Diagnostic Assessment</h1>
             <p>Teacher Name: Mr. Usama Ibnzaid</p>
             <div class="input-group">
                 <label for="studentName">Student Full Name:</label>
@@ -175,19 +162,17 @@
             </div>
             <button onclick="startAssessment()">Start Assessment</button>
         </div>
-
         <div class="quiz-page" id="quiz-page">
-            <h2 id="question-counter">Question 1 of 50</h2>
+            <h2 id="question-counter">Question 1 of 30</h2>
             <div id="question-container"></div>
             <button onclick="previousQuestion()" id="previous-button" style="display: none;">Previous</button>
             <button onclick="nextQuestion()" id="next-button">Next</button>
             <button onclick="submitAssessment()" style="display: none;" id="submit-button">Submit Assessment</button>
         </div>
-
         <div class="result-page" id="result-page">
             <h2>Assessment Report</h2>
             <p>Student: <span id="student-name-result"></span></p>
-            <p>Your Score: <span id="score"></span> / 50</p>
+            <p>Your Score: <span id="score"></span> / 30</p>
             <div class="report-section">
                 <h3>Strengths & Weaknesses</h3>
                 <div id="strengths-weaknesses"></div>
@@ -199,62 +184,47 @@
             <button onclick="downloadReport()">Download the Report</button>
         </div>
     </div>
-
+    <div id="alertModal" class="modal" style="display:none;">
+        <div class="modal-content">
+            <p id="modal-message"></p>
+            <button onclick="closeModal()">OK</button>
+        </div>
+    </div>
     <script>
-        // Data for the 50-question quiz.
+        // Updated quiz data with 30 questions and diverse types
         const quizData = [
             { type: "multiple-choice", question: "1. Which of these is a computer part you can touch?", options: ["Software", "Hardware", "Data", "Virus"], answer: "Hardware", topic: "Hardware" },
-            { type: "true-false", question: "2. The monitor is used for typing letters.", answer: "False", topic: "Hardware" },
+            { type: "checkbox", question: "2. Which of these are input devices? (Select all that apply)", options: ["Keyboard", "Mouse", "Printer", "Monitor", "Webcam"], answer: ["Keyboard", "Mouse", "Webcam"], topic: "Hardware" },
             { type: "fill-in-the-blank", question: "3. The main screen you see when you turn on a computer is called the _________.", answer: "desktop", topic: "Software" },
-            { type: "matching", question: "4. Match the device to its type.", pairs: [{ left: "Keyboard", right: ["Input Device", "Output Device"] }, { left: "Printer", right: ["Output Device", "Input Device"] }], answers: { "Keyboard": "Input Device", "Printer": "Output Device" }, topic: "Hardware" },
+            { type: "matching", question: "4. Match the internet term to its description.", pairs: [{ left: "URL", right: ["Website address", "A picture file"] }, { left: "Download", right: ["Getting a file from the internet", "Sending a file to the internet"] }], answers: { "URL": "Website address", "Download": "Getting a file from the internet" }, topic: "Internet" },
             { type: "short-answer", question: "5. What is an 'app' short for?", answer: "Application", topic: "Software" },
-            { type: "case-study", question: "6. **Case Study:** A student wants to draw a picture on the computer. What type of program would they use?", answer: "A drawing or painting program.", topic: "Software" },
-            { type: "multiple-choice", question: "7. Which of these is a safe password?", options: ["123456", "password", "MyDogSparky", "f0rty$even#"], answer: "f0rty$even#", topic: "Digital Citizenship" },
-            { type: "true-false", question: "8. A tablet is a type of computer.", answer: "True", topic: "Hardware" },
-            { type: "fill-in-the-blank", question: "9. To find a website, you type its _________ into the address bar.", answer: "URL", topic: "Internet" },
-            { type: "matching", question: "10. Match the action to the program.", pairs: [{ left: "Typing a story", right: ["Word Processor", "Web Browser"] }, { left: "Finding a website", right: ["Web Browser", "Word Processor"] }], answers: { "Typing a story": "Word Processor", "Finding a website": "Web Browser" }, topic: "Software" },
-            { type: "short-answer", question: "11. What is the main purpose of a 'search engine'?", answer: "To help you find information on the internet.", topic: "Internet" },
-            { type: "case-study", question: "12. **Case Study:** A student finds a funny picture online and wants to share it with a friend. What is the safest way to do this?", answer: "By asking an adult for help.", topic: "Digital Citizenship" },
+            { type: "case-study", question: "6. **Case Study:** Sarah wants to create a simple program that tells a robot to move forward 3 steps. What type of instructions would she use?", answer: "A sequence of commands.", topic: "Programming" },
+            { type: "dropdown", question: "7. The brain of the computer is the:", options: ["Monitor", "Keyboard", "CPU", "Hard Drive"], answer: "CPU", topic: "Hardware" },
+            { type: "true-false", question: "8. A computer virus is a type of harmful software.", answer: "True", topic: "Digital Citizenship" },
+            { type: "fill-in-the-gap", question: "9. To keep your online accounts safe, you should use a strong _________ with a mix of letters, numbers, and symbols.", answer: "password", topic: "Digital Citizenship" },
+            { type: "matching", question: "10. Match the programming concept to its definition.", pairs: [{ left: "Loop", right: ["Repeating a set of instructions", "A step-by-step set of instructions"] }, { left: "Algorithm", right: ["A step-by-step set of instructions", "Repeating a set of instructions"] }], answers: { "Loop": "Repeating a set of instructions", "Algorithm": "A step-by-step set of instructions" }, topic: "Programming" },
+            { type: "short-answer", question: "11. What is the purpose of a 'search engine'?", answer: "To find information on the internet.", topic: "Internet" },
+            { type: "case-study", question: "12. **Case Study:** Mark is playing an online game. Another player is saying mean things to him. What should Mark do?", answer: "Tell a trusted adult, block the player, and not respond.", topic: "Digital Citizenship" },
             { type: "multiple-choice", question: "13. What is a 'digital footprint'?", options: ["A mark left by a computer mouse", "The trail of data we leave online", "A type of keyboard", "A computer game"], answer: "The trail of data we leave online", topic: "Digital Citizenship" },
-            { type: "true-false", question: "14. A computer mouse is an input device.", answer: "True", topic: "Hardware" },
-            { type: "fill-in-the-blank", question: "15. The 'brain' of the computer is the _________.", answer: "CPU", topic: "Hardware" },
-            { type: "matching", question: "16. Match the term to its definition.", pairs: [{ left: "Monitor", right: ["An output device that shows images", "An input device for typing"] }, { left: "Keyboard", right: ["An input device for typing", "An output device that shows images"] }], answers: { "Monitor": "An output device that shows images", "Keyboard": "An input device for typing" }, topic: "Hardware" },
+            { type: "true-false", question: "14. An algorithm is a set of instructions to solve a problem.", answer: "True", topic: "Programming" },
+            { type: "fill-in-the-gap", question: "15. An operating system, like Windows or macOS, is a type of _________.", answer: "software", topic: "Software" },
+            { type: "matching", question: "16. Match the file extension to its type.", pairs: [{ left: ".png", right: ["Image file", "Document file"] }, { left: ".docx", right: ["Document file", "Image file"] }], answers: { ".png": "Image file", ".docx": "Document file" }, topic: "File Management" },
             { type: "short-answer", question: "17. What does 'copy and paste' do?", answer: "It duplicates text or a picture from one place to another.", topic: "Software" },
-            { type: "case-study", question: "18. **Case Study:** A student is working on a school project and needs to save their work. What button or command should they use?", answer: "The 'Save' or 'Save As' command.", topic: "File Management" },
-            { type: "multiple-choice", question: "19. Which of these is a way to stay safe online?", options: ["Giving out personal information", "Talking to strangers online", "Using a strong password", "Clicking on every link"], answer: "Using a strong password", topic: "Digital Citizenship" },
-            { type: "true-false", question: "20. A file is a collection of data stored on a computer.", answer: "True", topic: "File Management" },
-            { type: "fill-in-the-blank", question: "21. A _________ is a program that lets you surf the internet.", answer: "web browser", topic: "Internet" },
-            { type: "matching", question: "22. Match the device to what it is used for.", pairs: [{ left: "Speaker", right: ["Listening to sound", "Drawing on a screen"] }, { left: "Webcam", right: ["Taking pictures or video", "Listening to sound"] }], answers: { "Speaker": "Listening to sound", "Webcam": "Taking pictures or video" }, topic: "Hardware" },
-            { type: "short-answer", question: "23. What is an 'operating system'?", answer: "The main program that controls the computer's hardware and software.", topic: "Software" },
-            { type: "case-study", question: "24. **Case Study:** A student wants to send a letter to their grandmother using a computer. What program would they most likely use?", answer: "A word processor like Microsoft Word or Google Docs.", topic: "Software" },
-            { type: "multiple-choice", question: "25. Which of these is an example of a social media site?", options: ["Google", "Facebook", "Amazon", "Netflix"], answer: "Facebook", topic: "Internet" },
-            { type: "true-false", question: "26. You should always open an email attachment from a sender you don't know.", answer: "False", topic: "Digital Citizenship" },
-            { type: "fill-in-the-blank", question: "27. To make a document private, you can add a _________ to it.", answer: "password", topic: "Digital Citizenship" },
-            { type: "matching", question: "28. Match the device to its category.", pairs: [{ left: "Microphone", right: ["Input Device", "Output Device"] }, { left: "Headphones", right: ["Output Device", "Input Device"] }], answers: { "Microphone": "Input Device", "Headphones": "Output Device" }, topic: "Hardware" },
-            { type: "short-answer", question: "29. What is 'cyberbullying'?", answer: "Using technology to hurt or scare someone.", topic: "Digital Citizenship" },
-            { type: "case-study", question: "30. **Case Study:** A student wants to make a video of their school trip. What device would they use to film it?", answer: "A digital camera, webcam, or a smartphone.", topic: "Hardware" },
-            { type: "multiple-choice", question: "31. Which of these is a type of computer?", options: ["Refrigerator", "Desktop computer", "Lamp", "Chair"], answer: "Desktop computer", topic: "Hardware" },
-            { type: "true-false", question: "32. The internet is the same thing as the World Wide Web.", answer: "False", topic: "Internet" },
-            { type: "fill-in-the-blank", question: "33. A _________ is a folder that holds other files and folders.", answer: "folder", topic: "File Management" },
-            { type: "matching", question: "34. Match the file type to its content.", pairs: [{ left: ".jpg", right: ["Picture file", "Text file"] }, { left: ".txt", right: ["Text file", "Picture file"] }], answers: { ".jpg": "Picture file", ".txt": "Text file" }, topic: "File Management" },
-            { type: "short-answer", question: "35. What is the purpose of a 'backup'?", answer: "To make a copy of a file in case the original is lost or damaged.", topic: "File Management" },
-            { type: "case-study", question: "36. **Case Study:** A student is working on a school project and needs to save their work. What button or command should they use?", answer: "The 'Save' or 'Save As' command.", topic: "File Management" },
-            { type: "multiple-choice", question: "37. What is 'computer programming'?", options: ["Playing a game on the computer", "Giving instructions to a computer to solve a problem", "Typing a document", "Sending a message"], answer: "Giving instructions to a computer to solve a problem", topic: "Programming" },
-            { type: "true-false", question: "38. All computers are connected to the internet.", answer: "False", topic: "Internet" },
-            { type: "fill-in-the-blank", question: "39. The process of turning off your computer is called _________.", answer: "shutting down", topic: "Hardware" },
-            { type: "matching", question: "40. Match the term to its meaning.", pairs: [{ left: "Download", right: ["To copy a file from the internet to your computer", "To send a file from your computer to the internet"] }, { left: "Upload", right: ["To send a file from your computer to the internet", "To copy a file from the internet to your computer"] }], answers: { "Download": "To copy a file from the internet to your computer", "Upload": "To send a file from your computer to the internet" }, topic: "Internet" },
-            { type: "short-answer", question: "41. What is a 'virus' in a computer?", answer: "A harmful program that can damage your computer or steal your information.", topic: "Digital Citizenship" },
-            { type: "case-study", question: "42. **Case Study:** A student wants to make a family tree. They need to put a picture and a name for each person. What kind of program would be best?", answer: "A presentation or diagram program.", topic: "Software" },
-            { type: "multiple-choice", question: "43. What does 'Wi-Fi' stand for?", options: ["Wired Fidelity", "Wireless Fidelity", "Web Fire", "Web Filter"], answer: "Wireless Fidelity", topic: "Internet" },
-            { type: "true-false", question: "44. You should share your personal information like your address or phone number online.", answer: "False", topic: "Digital Citizenship" },
-            { type: "fill-in-the-blank", question: "45. The physical parts of a computer are called _________.", answer: "hardware", topic: "Hardware" },
-            { type: "matching", question: "46. Match the device to its category.", pairs: [{ left: "Scanner", right: ["Input device", "Output device"] }, { left: "Monitor", right: ["Output device", "Input device"] }], answers: { "Scanner": "Input device", "Monitor": "Output device" }, topic: "Hardware" },
-            { type: "short-answer", question: "47. What is 'netiquette'?", answer: "The set of rules for good behavior online.", topic: "Digital Citizenship" },
-            { type: "case-study", question: "48. **Case Study:** A student needs to email a picture to their teacher. What command would they use in the email program?", answer: "The 'attach' or 'insert' command.", topic: "Internet" },
-            { type: "multiple-choice", question: "49. Which of these is a way to protect your computer?", options: ["Installing antivirus software", "Clicking on pop-up ads", "Sharing your password", "Downloading files from unknown sources"], answer: "Installing antivirus software", topic: "Digital Citizenship" },
-            { type: "true-false", question: "50. A program is a set of instructions that a computer can follow.", answer: "True", topic: "Programming" },
+            { type: "case-study", question: "18. **Case Study:** A student wants to save a picture from the internet to their computer to use in a presentation. What is the best command to use?", answer: "Right-click and choose 'Save Image As...'.", topic: "Internet" },
+            { type: "multiple-choice", question: "19. Which of these is an example of a social media site?", options: ["Google", "Facebook", "Amazon", "Netflix"], answer: "Facebook", topic: "Digital Citizenship" },
+            { type: "checkbox", question: "20. Which of these are output devices? (Select all that apply)", options: ["Mouse", "Speaker", "Printer", "Monitor"], answer: ["Speaker", "Printer", "Monitor"], topic: "Hardware" },
+            { type: "fill-in-the-gap", question: "21. A _________ is a program that lets you surf the internet.", answer: "web browser", topic: "Internet" },
+            { type: "matching", question: "22. Match the type of device to its function.", pairs: [{ left: "Printer", right: ["Produces a hard copy", "Shows images on a screen"] }, { left: "Webcam", right: ["Captures video", "Produces a hard copy"] }], answers: { "Printer": "Produces a hard copy", "Webcam": "Captures video" }, topic: "Hardware" },
+            { type: "short-answer", question: "23. What is 'cyberbullying'?", answer: "Using technology to hurt or scare someone.", topic: "Digital Citizenship" },
+            { type: "case-study", question: "24. **Case Study:** You need to write a simple program that will count from 1 to 10. What programming concept would be most useful?", answer: "A loop or a repeat block.", topic: "Programming" },
+            { type: "multiple-choice", question: "25. The process of giving a computer a set of instructions is called:", options: ["Typing", "Saving", "Programming", "Uploading"], answer: "Programming", topic: "Programming" },
+            { type: "dropdown", question: "26. What does 'URL' stand for?", options: ["Universal Resource Link", "Uniform Resource Locator", "United Resource Link", "User's Resource Locator"], answer: "Uniform Resource Locator", topic: "Internet" },
+            { type: "fill-in-the-gap", question: "27. To protect your computer from viruses, you should use an _________ program.", answer: "antivirus", topic: "Digital Citizenship" },
+            { type: "matching", question: "28. Match the device to its category.", pairs: [{ left: "Microphone", right: ["Input device", "Output device"] }, { left: "Headphones", right: ["Output device", "Input device"] }], answers: { "Microphone": "Input device", "Headphones": "Output device" }, topic: "Hardware" },
+            { type: "short-answer", question: "29. What is 'netiquette'?", answer: "The rules for good behavior online.", topic: "Digital Citizenship" },
+            { type: "programming", question: "30. **Programming Question:** What is the output of this simple block-based code?", code: "Set `x` to 5.\nChange `x` by 2.\nChange `x` by 3.\nPrint `x`.", answer: "10", topic: "Programming" }
         ];
-        
+
         // State variables for the quiz
         let currentQuestionIndex = 0;
         let score = 0;
@@ -270,6 +240,8 @@
         const submitButton = document.getElementById('submit-button');
         const nextButton = document.getElementById('next-button');
         const previousButton = document.getElementById('previous-button');
+        const alertModal = document.getElementById('alertModal');
+        const modalMessage = document.getElementById('modal-message');
 
         /**
          * Starts the assessment, checks for student name, and displays the first question.
@@ -296,42 +268,86 @@
             const q = quizData[currentQuestionIndex];
             questionCounter.textContent = `Question ${currentQuestionIndex + 1} of ${quizData.length}`;
             questionContainer.innerHTML = '';
-            
+
             const questionDiv = document.createElement('div');
             questionDiv.classList.add('question');
-            
+
             let questionHTML = `<h4>${q.question}</h4>`;
+            if (q.type === 'programming') {
+                questionHTML += `<pre><code>${q.code}</code></pre>`;
+            }
             questionDiv.innerHTML = questionHTML;
 
             // Render different question types and add event listeners
-            if (q.type === 'multiple-choice' || q.type === 'true-false') {
-                const optionsDiv = document.createElement('div');
-                optionsDiv.classList.add('options');
-                (q.options || ["True", "False"]).forEach(option => {
+            const optionsDiv = document.createElement('div');
+            optionsDiv.classList.add('options');
+            if (q.type === 'multiple-choice' || q.type === 'true-false' || q.type === 'dropdown') {
+                const isDropdown = q.type === 'dropdown';
+                const inputType = isDropdown ? 'select' : 'radio';
+                if (isDropdown) {
+                    const select = document.createElement('select');
+                    select.name = 'answer';
+                    select.id = 'dropdown-answer';
+                    select.onchange = checkAnswerStatus;
+                    const defaultOption = document.createElement('option');
+                    defaultOption.value = "";
+                    defaultOption.textContent = "-- Select --";
+                    select.appendChild(defaultOption);
+                    q.options.forEach(option => {
+                        const optionElement = document.createElement('option');
+                        optionElement.value = option;
+                        optionElement.textContent = option;
+                        select.appendChild(optionElement);
+                    });
+                    optionsDiv.appendChild(select);
+                } else {
+                    (q.options || ["True", "False"]).forEach(option => {
+                        const inputId = `q${currentQuestionIndex}-opt-${option.replace(/\s+/g, '-')}`;
+                        optionsDiv.innerHTML += `
+                            <label for="${inputId}">
+                                <input type="radio" name="answer" id="${inputId}" value="${option}" onchange="checkAnswerStatus()"> ${option}
+                            </label>
+                        `;
+                    });
+                }
+                questionDiv.appendChild(optionsDiv);
+                if (userAnswers[currentQuestionIndex]) {
+                    if (isDropdown) {
+                        document.getElementById('dropdown-answer').value = userAnswers[currentQuestionIndex];
+                    } else {
+                        const savedAnswer = userAnswers[currentQuestionIndex];
+                        const selectedInput = document.querySelector(`input[name="answer"][value="${savedAnswer}"]`);
+                        if (selectedInput) {
+                            selectedInput.checked = true;
+                        }
+                    }
+                }
+            } else if (q.type === 'checkbox') {
+                q.options.forEach(option => {
                     const inputId = `q${currentQuestionIndex}-opt-${option.replace(/\s+/g, '-')}`;
                     optionsDiv.innerHTML += `
                         <label for="${inputId}">
-                            <input type="radio" name="answer" id="${inputId}" value="${option}" onchange="checkAnswerStatus()"> ${option}
+                            <input type="checkbox" name="answer" id="${inputId}" value="${option}" onchange="checkAnswerStatus()"> ${option}
                         </label>
                     `;
                 });
                 questionDiv.appendChild(optionsDiv);
-                // Pre-fill answer if it exists
                 if (userAnswers[currentQuestionIndex]) {
-                    const savedAnswer = userAnswers[currentQuestionIndex];
-                    const selectedInput = document.querySelector(`input[name="answer"][value="${savedAnswer}"]`);
-                    if (selectedInput) {
-                        selectedInput.checked = true;
-                    }
+                    const savedAnswers = userAnswers[currentQuestionIndex];
+                    savedAnswers.forEach(answer => {
+                        const selectedInput = document.querySelector(`input[name="answer"][value="${answer}"]`);
+                        if (selectedInput) {
+                            selectedInput.checked = true;
+                        }
+                    });
                 }
-            } else if (q.type === 'fill-in-the-blank' || q.type === 'short-answer' || q.type === 'case-study') {
+            } else if (q.type === 'fill-in-the-blank' || q.type === 'fill-in-the-gap' || q.type === 'short-answer' || q.type === 'case-study' || q.type === 'programming') {
                 const input = document.createElement('input');
                 input.type = 'text';
                 input.placeholder = 'Type your answer here...';
                 input.id = 'text-answer';
                 input.style.width = 'calc(100% - 22px)';
                 input.setAttribute('oninput', 'checkAnswerStatus()');
-                // Pre-fill answer if it exists
                 if (userAnswers[currentQuestionIndex]) {
                     input.value = userAnswers[currentQuestionIndex];
                 }
@@ -351,7 +367,6 @@
                         </select>
                     `;
                     matchingDiv.appendChild(pairDiv);
-                    // Pre-fill answer if it exists
                     setTimeout(() => {
                         if (userAnswers[currentQuestionIndex] && userAnswers[currentQuestionIndex][pair.left]) {
                             document.getElementById(selectId).value = userAnswers[currentQuestionIndex][pair.left];
@@ -363,7 +378,6 @@
 
             questionContainer.appendChild(questionDiv);
 
-            // Manage button visibility and state
             previousButton.style.display = currentQuestionIndex > 0 ? 'inline-block' : 'none';
             if (currentQuestionIndex === quizData.length - 1) {
                 nextButton.style.display = 'none';
@@ -372,8 +386,6 @@
                 nextButton.style.display = 'inline-block';
                 submitButton.style.display = 'none';
             }
-            
-            // Disable next/submit button until an answer is provided
             checkAnswerStatus();
         }
 
@@ -386,17 +398,24 @@
 
             if (q.type === 'multiple-choice' || q.type === 'true-false') {
                 isAnswered = document.querySelector(`input[name="answer"]:checked`) !== null;
-            } else if (q.type === 'fill-in-the-blank' || q.type === 'short-answer' || q.type === 'case-study') {
+            } else if (q.type === 'checkbox') {
+                const checked = document.querySelectorAll(`input[name="answer"]:checked`);
+                isAnswered = checked.length > 0;
+            } else if (q.type === 'fill-in-the-blank' || q.type === 'fill-in-the-gap' || q.type === 'short-answer' || q.type === 'case-study' || q.type === 'programming') {
                 const textInput = document.getElementById('text-answer');
                 isAnswered = textInput.value.trim() !== '';
-            } else if (q.type === 'matching') {
-                isAnswered = true; // Assume true, then check if any select is empty
-                const selects = document.querySelectorAll(`#matching-options select`);
-                selects.forEach(select => {
-                    if (select.value === "") {
-                        isAnswered = false;
-                    }
-                });
+            } else if (q.type === 'matching' || q.type === 'dropdown') {
+                isAnswered = true;
+                if (q.type === 'matching') {
+                    const selects = document.querySelectorAll(`#matching-options select`);
+                    selects.forEach(select => {
+                        if (select.value === "") {
+                            isAnswered = false;
+                        }
+                    });
+                } else if (q.type === 'dropdown') {
+                    isAnswered = document.getElementById('dropdown-answer').value !== "";
+                }
             }
 
             if (currentQuestionIndex === quizData.length - 1) {
@@ -435,7 +454,9 @@
             const q = quizData[currentQuestionIndex];
             if (q.type === 'multiple-choice' || q.type === 'true-false') {
                 return document.querySelector(`input[name="answer"]:checked`) !== null;
-            } else if (q.type === 'fill-in-the-blank' || q.type === 'short-answer' || q.type === 'case-study') {
+            } else if (q.type === 'checkbox') {
+                return document.querySelectorAll(`input[name="answer"]:checked`).length > 0;
+            } else if (q.type === 'fill-in-the-blank' || q.type === 'fill-in-the-gap' || q.type === 'short-answer' || q.type === 'case-study' || q.type === 'programming') {
                 const textInput = document.getElementById('text-answer');
                 return textInput.value.trim() !== '';
             } else if (q.type === 'matching') {
@@ -447,6 +468,8 @@
                     }
                 });
                 return answered;
+            } else if (q.type === 'dropdown') {
+                return document.getElementById('dropdown-answer').value !== "";
             }
             return false;
         }
@@ -461,7 +484,10 @@
                 if (selected) {
                     userAnswers[currentQuestionIndex] = selected.value;
                 }
-            } else if (q.type === 'fill-in-the-blank' || q.type === 'short-answer' || q.type === 'case-study') {
+            } else if (q.type === 'checkbox') {
+                const checked = document.querySelectorAll(`input[name="answer"]:checked`);
+                userAnswers[currentQuestionIndex] = Array.from(checked).map(c => c.value).sort();
+            } else if (q.type === 'fill-in-the-blank' || q.type === 'fill-in-the-gap' || q.type === 'short-answer' || q.type === 'case-study' || q.type === 'programming') {
                 const textInput = document.getElementById('text-answer');
                 userAnswers[currentQuestionIndex] = textInput.value.trim();
             } else if (q.type === 'matching') {
@@ -471,6 +497,8 @@
                     matchingAnswers[pair.left] = select.value;
                 });
                 userAnswers[currentQuestionIndex] = matchingAnswers;
+            } else if (q.type === 'dropdown') {
+                userAnswers[currentQuestionIndex] = document.getElementById('dropdown-answer').value;
             }
         }
 
@@ -496,12 +524,16 @@
             score = 0;
             quizData.forEach((q, index) => {
                 const userAnswer = userAnswers[index];
-                if (q.type === 'multiple-choice' || q.type === 'true-false') {
+                if (q.type === 'multiple-choice' || q.type === 'true-false' || q.type === 'dropdown') {
                     if (userAnswer === q.answer) {
                         score++;
                     }
-                } else if (q.type === 'fill-in-the-blank' || q.type === 'short-answer' || q.type === 'case-study') {
-                    if (userAnswer && userAnswer.toLowerCase() === q.answer.toLowerCase()) {
+                } else if (q.type === 'checkbox') {
+                    if (userAnswer && JSON.stringify(userAnswer.sort()) === JSON.stringify(q.answer.sort())) {
+                        score++;
+                    }
+                } else if (q.type === 'fill-in-the-blank' || q.type === 'fill-in-the-gap' || q.type === 'short-answer' || q.type === 'case-study' || q.type === 'programming') {
+                    if (userAnswer && userAnswer.toLowerCase().replace(/\./g, '') === q.answer.toLowerCase().replace(/\./g, '')) {
                         score++;
                     }
                 } else if (q.type === 'matching') {
@@ -526,8 +558,7 @@
         function generateReport() {
             const topicScores = {};
             const topicCounts = {};
-            
-            // Calculate scores per topic
+
             quizData.forEach((q, index) => {
                 const topic = q.topic;
                 const userAnswer = userAnswers[index];
@@ -537,12 +568,16 @@
                 }
                 topicCounts[topic]++;
 
-                if (q.type === 'multiple-choice' || q.type === 'true-false') {
+                if (q.type === 'multiple-choice' || q.type === 'true-false' || q.type === 'dropdown') {
                     if (userAnswer === q.answer) {
                         topicScores[topic]++;
                     }
-                } else if (q.type === 'fill-in-the-blank' || q.type === 'short-answer' || q.type === 'case-study') {
-                    if (userAnswer && userAnswer.toLowerCase() === q.answer.toLowerCase()) {
+                } else if (q.type === 'checkbox') {
+                    if (userAnswer && JSON.stringify(userAnswer.sort()) === JSON.stringify(q.answer.sort())) {
+                        topicScores[topic]++;
+                    }
+                } else if (q.type === 'fill-in-the-blank' || q.type === 'fill-in-the-gap' || q.type === 'short-answer' || q.type === 'case-study' || q.type === 'programming') {
+                    if (userAnswer && userAnswer.toLowerCase().replace(/\./g, '') === q.answer.toLowerCase().replace(/\./g, '')) {
                         topicScores[topic]++;
                     }
                 } else if (q.type === 'matching') {
@@ -562,8 +597,15 @@
             let strengthsHTML = '<h4>Strengths</h4><p>Based on the performance, the student has demonstrated a strong understanding of the following areas:</p><ul>';
             let weaknessesHTML = '<h4>Weaknesses</h4><p>Additional practice is recommended in the following topics:</p><ul>';
             let feedback = 'Overall, the student has shown a good understanding of the material. ';
+            let parentReport = `Dear Parent/Guardian,
 
-            // Determine strengths and weaknesses
+This report summarizes your child's performance on the Grade 6 Computer Science diagnostic assessment.
+
+**Summary of Results:**
+Your child, ${studentName}, scored ${score} out of ${quizData.length}.
+
+**Strengths:**
+`;
             let strongTopics = [];
             let weakTopics = [];
             for (const topic in topicScores) {
@@ -578,91 +620,68 @@
             if (strongTopics.length > 0) {
                 strengthsHTML += `<li>${strongTopics.join('</li><li>')}</li>`;
                 feedback += `The student performed exceptionally well in **${strongTopics.join(', ')}**.`;
+                parentReport += `- ${strongTopics.join('\n- ')}\n`;
             } else {
                 strengthsHTML += '<li>No specific strengths identified. Continued practice is encouraged.</li>';
                 feedback += 'Continued practice across all topics will help to build a stronger foundation.';
+                parentReport += `- No specific strengths were identified.`;
             }
+            strengthsHTML += '</ul>';
 
+            parentReport += `\n**Areas for Development:**\n`;
             if (weakTopics.length > 0) {
                 weaknessesHTML += `<li>${weakTopics.join('</li><li>')}</li>`;
                 feedback += ` It is recommended that the student receive additional support in **${weakTopics.join(', ')}**.`;
+                parentReport += `- ${weakTopics.join('\n- ')}\n`;
             } else {
                 weaknessesHTML += '<li>No specific weaknesses identified.</li>';
-                feedback += 'The student has a good grasp of the material across all topics.';
+                feedback += 'The student has a good grasp of the foundational concepts.';
+                parentReport += `- The student has a solid understanding of the concepts with no specific weak areas identified.`;
             }
-
-            strengthsHTML += '</ul>';
             weaknessesHTML += '</ul>';
 
-            document.getElementById('strengths-weaknesses').innerHTML = strengthsHTML + weaknessesHTML;
-            document.getElementById('feedback').textContent = feedback;
-            document.getElementById('parent-report').textContent = generateFormalReport(studentName);
-        }
-        
-        /**
-         * Generates the formal, positive parent report.
-         * @param {string} name - The student's name.
-         */
-        function generateFormalReport(name) {
-            return `Dear Guardian of ${name},
+            parentReport += `\n**Recommendations:**
+Based on these results, we recommend focusing on the areas for development. Reinforcing concepts through interactive activities and practical exercises can be very effective.
 
-This report provides a formal overview of the recent ICT diagnostic assessment completed by ${name}. This assessment is strictly a diagnostic tool designed to evaluate the student's current proficiency and identify areas of strength and areas that may require further development. This is not a graded test and will not affect the student's academic standing.
-
-The results of this assessment will be utilized by our instructional team to create a highly personalized learning plan for ${name}, ensuring that educational support is precisely tailored to their individual needs.
-
-We appreciate ${name}'s diligent effort during this assessment. The requirement to answer each question before moving to the next encourages a focused and careful approach, and ${name} successfully demonstrated this commitment to the task.
-
-The insights gained from this diagnostic will be invaluable in guiding future instruction and fostering continued academic growth. We look forward to partnering with you in ${name}'s educational journey.
+If you have any questions, please feel free to contact me.
 
 Sincerely,
 Mr. Usama Ibnzaid
-Riyadh schools - Hittin`;
+`;
+
+            document.getElementById('strengths-weaknesses').innerHTML = strengthsHTML + weaknessesHTML;
+            document.getElementById('feedback').textContent = feedback;
+            document.getElementById('parent-report').innerHTML = parentReport.replace(/\n/g, '<br>');
+        }
+
+        /**
+         * Displays a modal with a given message.
+         * @param {string} message - The message to display.
+         */
+        function showModal(message) {
+            modalMessage.textContent = message;
+            alertModal.style.display = 'flex';
+        }
+
+        /**
+         * Closes the alert modal.
+         */
+        function closeModal() {
+            alertModal.style.display = 'none';
         }
 
         /**
          * Downloads the generated report as a text file.
          */
         function downloadReport() {
-            const reportContent = `
-ICT Diagnostic Assessment Report
-Student: ${studentName}
-Score: ${score} / ${quizData.length}
-
-Strengths:
-${document.getElementById('strengths-weaknesses').querySelector('h4').nextElementSibling.textContent}
-
-Weaknesses:
-${document.getElementById('strengths-weaknesses').querySelectorAll('h4')[1].nextElementSibling.textContent}
-
-Constructive Feedback:
-${document.getElementById('feedback').textContent}
-
-Formal Report to Parent/Guardian:
-${document.getElementById('parent-report').textContent}
-            `;
+            const reportContent = document.getElementById('parent-report').innerText;
             const blob = new Blob([reportContent], { type: 'text/plain' });
             const link = document.createElement('a');
             link.href = URL.createObjectURL(blob);
-            link.download = `${studentName}_ICT_Assessment_Report.txt`;
+            link.download = `${studentName}_Computer_Science_Report.txt`;
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
-        }
-
-        /**
-         * Simple modal for alerts, replacing the native alert() function.
-         */
-        function showModal(message) {
-            const modal = document.createElement('div');
-            modal.classList.add('modal');
-            const modalContent = document.createElement('div');
-            modalContent.classList.add('modal-content');
-            modalContent.innerHTML = `
-                <p>${message}</p>
-                <button onclick="this.parentNode.parentNode.remove()">OK</button>
-            `;
-            modal.appendChild(modalContent);
-            document.body.appendChild(modal);
         }
     </script>
 </body>
